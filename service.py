@@ -10,9 +10,6 @@ from config import global_config
 from logging.handlers import TimedRotatingFileHandler
 
 # 加载所需要的配置
-domain = global_config["domain"]
-src_lang = global_config["src_lang"]
-tgt_lang = global_config["tgt_lang"]
 logdir = global_config["logdir"]
 
 def config_logging():
@@ -34,7 +31,7 @@ def main():
     config_logging()
     # 对服务的配置问题
     application = tornado.web.Application(
-        [(r'/yyq/translate/{}/{}/{}'.format(domain, src_lang, tgt_lang), app.TranslateHandler)]
+        [(r'/yyq/translate', app.TranslateHandler)]
     )
     http_server = tornado.httpserver.HTTPServer(application)
     # 2. 服务端口

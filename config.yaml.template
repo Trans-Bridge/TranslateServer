@@ -1,7 +1,4 @@
 # 服务相关配置
-src_lang: "zh"
-tgt_lang: "en"
-domain: "general"
 logdir: "mount/log"
 
 # 分词相关配置
