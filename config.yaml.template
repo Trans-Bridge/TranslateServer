@@ -1,0 +1,14 @@
+# 服务相关配置
+src_lang: "zh"
+tgt_lang: "en"
+domain: "general"
+logdir: "mount/log"
+
+# 分词相关配置
+tok_method: "spm"
+tok_src_model: "mount/tok.src.model"
+tok_tgt_model: "mount/tok.tgt.model"
+
+# 翻译模型相关配置
+translate_method: "opennmt"
+translate_model: "mount/ct2_convert"

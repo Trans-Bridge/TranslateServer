@@ -1,0 +1,10 @@
+certifi==2020.11.8
+chardet==3.0.4
+ctranslate2==1.16.0
+idna==2.10
+numpy==1.19.4
+PyYAML==5.3.1
+requests==2.25.0
+sentencepiece==0.1.94
+tornado==6.1
+urllib3==1.26.2
