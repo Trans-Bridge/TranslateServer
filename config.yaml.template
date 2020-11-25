@@ -1,6 +1,10 @@
 # 服务相关配置
 logdir: "mount/log"
 
+# 预处理相关配置
+preprocess_pipeline:
+  - "basic"
+
 # 分词相关配置
 tok_method: "spm"
 tok_src_model: "mount/tok.src.model"

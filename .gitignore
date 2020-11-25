@@ -138,5 +138,5 @@ dmypy.json
 cython_debug/
 
 # custom
-mount
+mount*
 .vscode
