@@ -1,6 +1,7 @@
 from .tokenizer import *
 from .translator import *
-from .preprocessor import processor
+from .preprocessor import *
+from .postprocessor import *
 
 
 def translate_all_in_one(text):
@@ -8,4 +9,5 @@ def translate_all_in_one(text):
     tok = tokenize(text)
     model_output = translate(tok)
     result = detokenize(model_output)
+    result = postprocessor(result)
     return result
