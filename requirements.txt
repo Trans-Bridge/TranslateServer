@@ -8,3 +8,4 @@ requests==2.25.0
 sentencepiece==0.1.94
 tornado==6.1
 urllib3==1.26.2
+sacremoses==0.0.43
