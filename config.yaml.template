@@ -4,6 +4,7 @@ logdir: "mount/log"
 # 预处理相关配置
 preprocess_pipeline:
   - "basic"
+max_sent_len: 100  # 最长句长限制（超过此句长限制的将对其进行分句处理，分句后每个单句仍然超过长度限制的则会抛出异常）
 
 # 分词相关配置
 tok_method: "spm"
@@ -13,3 +14,5 @@ tok_tgt_model: "mount/tok.tgt.model"
 # 翻译模型相关配置
 translate_method: "opennmt"
 translate_model: "mount/ct2_convert"
+translate_src_lang: "en"
+translate_tgt_lang: "zh"

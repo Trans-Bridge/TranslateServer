@@ -1,3 +1,15 @@
+"""
+分词方法
+method: tokenize
+input type: List[str]
+output type: List[List[str]]
+
+词合并方法
+method: detokenize
+input_type: List[List[str]]
+output_type: List[str]
+"""
+
 from functools import partial
 from config import global_config
 
@@ -15,7 +27,7 @@ def get_spm_tokenizer():
     else:  
         tgt_tokenizer = spm.SentencePieceProcessor(model_file=tok_tgt_model)
     
-    tokenize = partial(src_tokenizer.encode, out_type=str, enable_sampling=True, alpha=0.1)
+    tokenize = partial(src_tokenizer.encode, out_type=str, alpha=0.1)
     detokenize = tgt_tokenizer.decode
     return tokenize, detokenize
 

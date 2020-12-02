@@ -1,6 +1,9 @@
 # 翻译后处理器
 """
 翻译预处理器
+method: postprocessor
+input_type: str
+output_type: str
 """
 import sys
 

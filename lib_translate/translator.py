@@ -1,3 +1,10 @@
+"""
+翻译方法
+method: translate
+input type: List[List[str]]
+output type: List[List[str]]
+"""
+from itertools import chain
 from config import global_config
 
 # 获取当前模块有用的配置
@@ -10,7 +17,9 @@ if translate_method == "opennmt":
     translator = ctranslate2.Translator(translate_model)
 
     def translate(tokens):
-        return translator.translate_batch([tokens])[0][0]["tokens"]
+        model_output = translator.translate_batch(tokens)
+        output_tokens = [item[0]["tokens"] for item in model_output]
+        return output_tokens
 
 elif translate_method == "fairseq":
     from fairseq.models.transformer import TransformerModel
@@ -19,10 +28,12 @@ elif translate_method == "fairseq":
         checkpoint_file='checkpoint_best.pt',
         data_name_or_path=translate_model  # 指定存储词表的文件
     )
-    # translate = lambda tokens: translator.translate(" ".join(tokens)).split(" ")  # fairseq接受字符串类型输入，输出字符串类型
 
     def translate(tokens):
-        return translator.translate(" ".join(tokens)).split(" ")
+        input_sents = [" ".join(item) for item in tokens]
+        model_output = translator.translate(input_sents)
+        output_tokens = [item.split(" ") for item in model_output]
+        return output_tokens
 else:
     raise AttributeError("Unsupported translation method: {}".format(translate_method))
 

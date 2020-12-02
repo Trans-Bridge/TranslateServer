@@ -1,5 +1,8 @@
 """
 翻译预处理器
+method: processor
+input_type: str
+output_type: str
 """
 import sys
 

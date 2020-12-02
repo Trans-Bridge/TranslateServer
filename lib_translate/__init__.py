@@ -2,12 +2,22 @@ from .tokenizer import *
 from .translator import *
 from .preprocessor import *
 from .postprocessor import *
+from .sentence_split import *
 
 
 def translate_all_in_one(text):
-    text = processor(text)
-    tok = tokenize(text)
-    model_output = translate(tok)
-    result = detokenize(model_output)
-    result = postprocessor(result)
-    return result
+
+    exe_funcs = [
+        processor,
+        sent_splitter,
+        tokenize,
+        translate,
+        detokenize,
+        sent_joiner,
+        postprocessor
+    ]
+    output = text
+    for func in exe_funcs:
+        output = func(output)
+
+    return output
