@@ -24,13 +24,16 @@ RUN git clone https://github.com/HIT-SCIR/pyltp.git && \
 # manually install faiseq (use the version which we train model on)
 RUN git clone https://github.com/pytorch/fairseq.git && \
     cd fairseq && \
-    git checkout 265791b727b664d4d7da3abd918a3f6fb70d7337 && \
+    git checkout v0.10.1 && \
     pip install -i https://pypi.douban.com/simple . && \
     cd .. && \
     rm -rf fairseq
 
 COPY requirements.txt requirements.txt
-RUN pip install -i https://pypi.douban.com/simple -r requirements.txt
+COPY scripts/download_nltk_model.py download_nltk_model.py
+RUN pip install -i https://pypi.douban.com/simple -r requirements.txt && \
+    python download_nltk_model.py && \
+    rm requirements.txt download_nltk_model.py
 
 ARG SOURCEDIR=/root/translate_server_py/
 WORKDIR ${SOURCEDIR}
