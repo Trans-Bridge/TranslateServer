@@ -26,13 +26,15 @@ elif translate_method == "fairseq":
     translator = TransformerModel.from_pretrained(
         translate_model,
         checkpoint_file='checkpoint_best.pt',
-        data_name_or_path=translate_model  # 指定存储词表的文件
+        data_name_or_path=translate_model,  # 指定存储词表的文件
+        beam=3
     )
+    translator.eval()
 
     def translate(tokens):
         input_sents = [" ".join(item) for item in tokens]
         model_output = translator.translate(input_sents)
-        output_tokens = [item.split(" ") for item in model_output]
+        output_tokens = [[i for i in item.split(" ") if i != "<unk>"] for item in model_output]
         return output_tokens
 else:
     raise AttributeError("Unsupported translation method: {}".format(translate_method))
