@@ -58,6 +58,7 @@ bash start.sh /path/to/workspace {image_tag} {serve_port}
 http://{ip}:{port}/{who}/translate/{domain}/{src_lang}/{tgt_lang}
 ```
 api字段解释
+
 |  参数名   | 参数类型  |  参数解释 |
 |  ----  | ----  |  ----  |
 | who | str | 模型的类型，比如对于特定领域和语言对，可以部署不同类型的模型|
@@ -66,6 +67,7 @@ api字段解释
 | domain | str | 翻译领域，general (通用领域) |
 
 请求参数 (body json)
+
 |  参数名   | 参数类型  |  参数解释 |
 |  ----  | ----  |  ----  |
 | method | str | 执行的方法，目前有 "translate", "add\_words", "delete\_words", "show\_words" |
@@ -126,12 +128,14 @@ Content-Type: application/json
 }
 ```
 返回参数
+
 |  参数名   | 参数类型  |  参数解释 |
 |  ----  | ----  |  ----  |
 |   code    | str        | 返回状态码  200(翻译成功) 500(翻译错误） |
 |    msg   |str| 成功时为“success”其他情形返回错误信息|
 | translatioin  | str | 译文，此字段放在data字段内 |
 | words | list | 目前被保护的词，此字段放在data字段内 |
+
 返回示例（translate 方法）
 ```json
 {
