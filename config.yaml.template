@@ -6,6 +6,11 @@ preprocess_pipeline:
   - "basic"
 max_sent_len: 100  # 最长句长限制（超过此句长限制的将对其进行分句处理，分句后每个单句仍然超过长度限制的则会抛出异常）
 
+# term保护相关配置
+term_mask_symbol: "@@"
+term_protection_dict: "mount/dict.xlsx"  # 可以以excel的形式指定初始化词表
+term_protection_db: "mount/dict.db"  # 词表的增删查改将基于此sqlite db
+
 # 分词相关配置
 tok_method: "spm"
 tok_src_model: "mount/tok.src.model"

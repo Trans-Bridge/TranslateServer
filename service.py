@@ -2,22 +2,25 @@
 服务启动入口
 """
 import os
-import tornado
 import logging
-import app
-
-from config import global_config
 from logging.handlers import TimedRotatingFileHandler
 
+import tornado
+import app
+from config import global_config
+
 # 加载所需要的配置
-logdir = global_config["logdir"]
+LOG_DIR = global_config["logdir"]
+SERVE_PORT = global_config["serve_port"]
 
 def config_logging():
-
+    """
+    配置服务日志
+    """
     log_fmt = '%(asctime)s\tFile\"%(filename)s\",line%(lineno)s\t%(levelname)s:%(message)s'
     formatter = logging.Formatter(log_fmt)
     # S 秒，D 天， M 分钟， H 小时，下面代表每间隔一天生成一个日志文件，每10天定时删除，日志文件存放在log目录下，前缀是translation
-    log_file_handler = TimedRotatingFileHandler(filename=os.path.join(logdir, "TranslationLog"),
+    log_file_handler = TimedRotatingFileHandler(filename=os.path.join(LOG_DIR, "TranslationLog"),
                                                 when="D",
                                                 interval=1,
                                                 backupCount=10)
@@ -28,6 +31,9 @@ def config_logging():
 
 
 def main():
+    """
+    服务启动入口函数
+    """
     config_logging()
     # 对服务的配置问题
     application = tornado.web.Application(
@@ -35,7 +41,7 @@ def main():
     )
     http_server = tornado.httpserver.HTTPServer(application)
     # 2. 服务端口
-    http_server.listen(80)
+    http_server.listen(SERVE_PORT)
     tornado.ioloop.IOLoop.current().start()
 
 

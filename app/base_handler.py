@@ -32,12 +32,14 @@ class _BaseHandler(RequestHandler):
         }
         try:
             params = json.loads(self.request.body)
-            response_dict["data"] = self._get_result_dict(**params)
+            data = self._get_result_dict(**params)
+            if data:
+                response_dict["data"] = data
         except Exception as e:
             response_dict["status"] = "500"
             response_dict["msg"] = str(e)
             logger.error(traceback.format_exc())
             
         response = json.dumps(response_dict, ensure_ascii=False)
-        logger.info("返回内容：%s" % response) 
+        logger.info("返回内容：%s" % response)
         self.write(response)
