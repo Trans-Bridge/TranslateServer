@@ -10,6 +10,7 @@ from config import global_config
 # 获取当前模块有用的配置
 translate_method = global_config["translate_method"]
 translate_model = global_config["translate_model"]
+translate_model_device = global_config["translate_model_device"]
 
 # 使用opennmt训练的翻译模型
 if translate_method == "opennmt":
@@ -29,6 +30,7 @@ elif translate_method == "fairseq":
         data_name_or_path=translate_model,  # 指定存储词表的文件
         beam=3
     )
+    translator.to(translate_model_device)
     translator.eval()
 
     def translate(tokens):
@@ -40,4 +42,3 @@ else:
     raise AttributeError("Unsupported translation method: {}".format(translate_method))
 
 __all__ = ["translate"]
-

@@ -29,8 +29,11 @@ python service.py
 
 ## 部署
 构建docker
-```
-docker build -t translate_server_py:latest .
+```bash
+# cpu版本
+docker build -t translate_server_py:latest -f dockerfile ..
+# cuda版本
+docker build -t translate_server_py:latest_gpu -f dockerfile_gpu ..
 ```
 ### 手动启动容器:
 `/path/to/mount`目录内应包含模型、配置文件等。具体参考`准备模型`

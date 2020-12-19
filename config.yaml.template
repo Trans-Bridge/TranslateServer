@@ -21,6 +21,7 @@ translate_method: "opennmt"
 translate_model: "mount/ct2_convert"
 translate_src_lang: "en"
 translate_tgt_lang: "zh"
+translate_model_device: "cpu"
 
 # docker 相关配置
 docker_image_tag_suffix: v0.10.1
