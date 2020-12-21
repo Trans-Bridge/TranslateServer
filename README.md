@@ -28,6 +28,13 @@ python service.py
 ```
 
 ## 部署
+生成dockerfile
+```
+# 生成gpu运行，fairseq版本为v0.10.1的dockerfile
+python docker/generate_docker_file.py docker/dockerfile_gpu --device cuda --fairseq_version v0.10.1
+# 生成cpu运行，fairseq Commit版本为265791b727b664d4d7da3abd918a3f6fb70d7337 的dockerfile
+python docker/generate_docker_file.py docker/dockerfile --device cpu --fairseq_version 265791b727b664d4d7da3abd918a3f6fb70d7337
+```
 构建docker
 ```bash
 # cpu版本

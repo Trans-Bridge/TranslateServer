@@ -15,7 +15,13 @@ translate_model_device = global_config["translate_model_device"]
 # 使用opennmt训练的翻译模型
 if translate_method == "opennmt":
     import ctranslate2
-    translator = ctranslate2.Translator(translate_model)
+    if ":" in translate_model_device:
+        translate_model_device, device_index = translate_model_device.split(":")
+    else:
+        device_index = "0"
+    translator = ctranslate2.Translator(translate_model,
+                                        device=translate_model_device,
+                                        device_index=int(device_index))
 
     def translate(tokens):
         model_output = translator.translate_batch(tokens)
