@@ -36,6 +36,7 @@ LINKS_NAME_TEMPLATE = "      - {name}\n"
 CONTAINER_CONFIG_TEMPLATE = """
   {name}:
     image: translate_server_py:{image_tag}
+    runtime: {runtime}
     container_name: translate_server_{name}
     expose:
       - "80"
@@ -83,14 +84,15 @@ def generate_docker_compose_yaml(folder,
 
         docker_image_tag_suffix = config.get("docker_image_tag_suffix", None)
         if docker_image_tag_suffix:
-            tag = image_tag + docker_image_tag_suffix
+            tag = image_tag + "-"+ docker_image_tag_suffix
         else:
             tag = image_tag
 
         config_string = CONTAINER_CONFIG_TEMPLATE.format(**{
             "folder": folder,
             "name": name,
-            "image_tag": tag
+            "image_tag": tag,
+            "runtime": "runc" if "cuda" not in docker_image_tag_suffix else "nvidia"
         })
         all_config_strings += config_string
         all_links += LINKS_NAME_TEMPLATE.format(**{"name": name})

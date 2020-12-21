@@ -138,8 +138,9 @@ def read_dict_excel(term_file):
     mapping = {}
     reverse_mapping = {}
     for _, (src, tgt) in dataframe.iterrows():
-        mapping[src.lower()] = tgt
-        reverse_mapping[tgt.lower()] = src
+        if isinstance(src, str) and isinstance(tgt, str):
+            mapping[src.lower()] = tgt
+            reverse_mapping[tgt.lower()] = src
     vocab = {
         "{}-{}".format(*langs): mapping,
         "{}-{}".format(*reversed(langs)): reverse_mapping
