@@ -1,12 +1,13 @@
 """
 对输入文本的专业术语进行保护，目前仅支持一句话中对一个术语进行保护
->>> src_word, tgt_word = "hello world", "你好世界"
+>>> src_word, tgt_word = "Hello world", "你好世界"
 >>> add_words([[src_word, tgt_word]])
->>> src_word in show_words(return_dict=True)
+>>> src_word.lower() in show_words(return_dict=True)
 True
->>> sent, term = mask_term("hello world!")
+>>> add_words([["I'm", "我是"]])
+>>> sent, term = mask_term("hello world! I'm.")
 >>> de_mask_term(sent, term)
-'你好世界!'
+'你好世界! 我是.'
 """
 import re
 import warnings
@@ -32,8 +33,11 @@ class DFAFilter():
     使用dfa算法构建的term filter
     >>> keywords = ["hello world", "I'm", "hello"]
     >>> dfa_filter = DFAFilter(keywords)
-    >>> dfa_filter.filter("Hello world. I'm fine thank you.")
+    >>> terms, indexes = dfa_filter.filter("Hello world. I'm fine thank you.")
+    >>> terms
     ['Hello world', "I'm"]
+    >>> indexes
+    [(0, 11), (13, 16)]
     """
 
     def __init__(self, keywords):
@@ -73,6 +77,7 @@ class DFAFilter():
         origin_message = message
         message = message.lower()
         sensitive_words = []
+        indexes = []
         start = 0
         while start < len(message):
             level = self.keyword_chains
@@ -88,10 +93,11 @@ class DFAFilter():
                     break
             if word_end >= 0:
                 sensitive_words.append(origin_message[word_start: word_end])
+                indexes.append((word_start, word_end))
                 start = word_end - 1
             start += 1
 
-        return sensitive_words
+        return sensitive_words, indexes
 
 
 Base = declarative_base()
@@ -109,13 +115,14 @@ ENGIN = create_engine("sqlite:///{}".format(TERM_PROTECTION_DB))
 SESSION = sessionmaker(bind=ENGIN)()
 Base.metadata.create_all(ENGIN)
 
+
 def read_dict_sqlite():
     """
     从sqlite数据库中读取需要保护的词典
     """
     mapping = {}
     for item in SESSION.query(Vocab):
-        mapping[item.src_word] = item.tgt_word
+        mapping[item.src_word.lower()] = item.tgt_word
     return mapping
 
 
@@ -131,13 +138,14 @@ def read_dict_excel(term_file):
     mapping = {}
     reverse_mapping = {}
     for _, (src, tgt) in dataframe.iterrows():
-        mapping[src] = tgt
-        reverse_mapping[tgt] = src
+        mapping[src.lower()] = tgt
+        reverse_mapping[tgt.lower()] = src
     vocab = {
         "{}-{}".format(*langs): mapping,
         "{}-{}".format(*reversed(langs)): reverse_mapping
     }
     return vocab.get("{}-{}".format(SRC_LANG, TGT_LANG))
+
 
 if DICT_FILE:
     MAPPING = read_dict_excel(DICT_FILE)
@@ -150,35 +158,57 @@ MAPPING.update(read_dict_sqlite())
 
 TERM_FILTER = DFAFilter(list(MAPPING.keys()))
 
+
 def mask_term(sent):
     """
     给定一段平行语料，对其中的term进行保护操作
     """
-    terms = TERM_FILTER.filter(sent)
-    if len(terms) != 1 or PROTECTION_SYMBOL in sent:
+    terms, indexes = TERM_FILTER.filter(sent)
+    if PROTECTION_SYMBOL in sent:
         return sent, ""
 
-    term = terms[0]
-    sent = sent.replace(term, PROTECTION_SYMBOL)
+    string_builder = ""
+    prev = 0  # 记录上一个term的位置
+    for i, (start, end) in enumerate(indexes):
+        string_builder += sent[prev:start]
+        string_builder += PROTECTION_SYMBOL + str(i)
+        prev = end
+    string_builder += sent[prev:]
 
-    return sent, term
+    return string_builder, terms
 
 
-RE_DEMULTY = re.compile("[{}]+".format("".join(set(PROTECTION_SYMBOL))))
+RE_DEMULTY = re.compile(
+    "([{}]+)([0-9]+)".format("".join(set(PROTECTION_SYMBOL))))
 
 
-def de_mask_term(sent, term):
+def de_mask_term(sent, terms):
     """
     对句子进行去保护
     """
-    return RE_DEMULTY.sub(MAPPING[term], sent)
+    string_builder = ""
+    prev = 0  # 记录上一个term的位置
+    for obj in RE_DEMULTY.finditer(sent):
+        start, end = obj.span()
+        string_builder += sent[prev:start]
+        prev = end
+        _, num = obj.groups()
+        num = int(num)
+        if num >= len(terms):
+            continue
+        term = terms[num]
+        string_builder += MAPPING[term.lower()]
+
+    string_builder += sent[prev:]
+
+    return string_builder
 
 
 def add_words(words):
     """添加词典"""
     for src_word, tgt_word in words:
         SESSION.merge(Vocab(src_word=src_word, tgt_word=tgt_word))
-        MAPPING[src_word] = tgt_word
+        MAPPING[src_word.lower()] = tgt_word
         TERM_FILTER.add(src_word)
     SESSION.commit()
 
