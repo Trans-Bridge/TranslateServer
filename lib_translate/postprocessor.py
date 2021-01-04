@@ -13,6 +13,7 @@ from config import global_config
 # 获取当前模块有用的配置
 postprocess_pipeline = global_config.get("postprocess_pipeline", [])
 
+
 def get_remove_whitespace_postprocessor():
     """
     去除文本中的所有空格，中文按字分开时可以将字符间空格去掉。
@@ -22,11 +23,45 @@ def get_remove_whitespace_postprocessor():
     '本•富兰克林（ Ben Franklin ）称德国人愚蠢而剽悍。'
     """
     re_han = re.compile("([^A-Za-z0-9])(\\s+)([^A-Za-z0-9])")
-    def postprocessor(line): 
+
+    def postprocessor(line):
         while re_han.search(line):
             line = re_han.sub("\\g<1>\\g<3>", line)
         return line
     return postprocessor
+
+
+def get_detruecase_postprocessor():
+    """
+    get sacremoses detruecase processor
+    >>> processor = get_detruecase_postprocessor()
+    >>> text = "how are you ."
+    >>> processor(text)
+    'How are you .'
+    """
+    from sacremoses import MosesDetruecaser
+    mtr = MosesDetruecaser()
+
+    def processor(line):
+        return mtr.detruecase(line, return_str=True)
+    return processor
+
+
+def get_mosesdetokenize_postprocessor(lang=None):
+    """
+    获取sacremoses Detokenizer
+    >>> processor = get_mosesdetokenize_postprocessor(lang="en")
+    >>> processor("This is a sentence .")
+    'This is a sentence.'
+    """
+    from sacremoses import MosesDetokenizer
+    if not lang:
+        lang = global_config["translate_tgt_lang"]
+    mdt = MosesDetokenizer(lang=lang)
+
+    def processor(line):
+        return mdt.detokenize(line.split(), return_str=True)
+    return processor
 
 
 this = sys.modules[__name__]
