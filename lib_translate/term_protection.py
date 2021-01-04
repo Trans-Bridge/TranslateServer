@@ -8,6 +8,11 @@ True
 >>> sent, term = mask_term("hello world! I'm.")
 >>> de_mask_term(sent, term)
 '你好世界! 我是.'
+>>> delete_words(["I'm", "hello world"])
+>>> src_word.lower() not in show_words(return_dict=True)
+True
+>>> mask_term("hello world! I'm.")
+("hello world! I'm.", [])
 """
 import re
 import warnings
@@ -26,6 +31,13 @@ TERM_PROTECTION_DB = global_config["term_protection_db"]
 
 __all__ = ["mask_term", "de_mask_term",
            "add_words", "delete_words", "show_words"]
+
+
+def _transform_word(word):
+    """
+    对加入词表的词进行预处理
+    """
+    return word.strip().lower()
 
 
 class DFAFilter():
@@ -49,11 +61,33 @@ class DFAFilter():
             if isinstance(word, str):
                 self.add(word.strip())
 
+    def remove(self, keyword):
+        """
+        移除过滤器中的词
+        """
+        if not keyword:
+            return
+        chars = _transform_word(keyword)
+        level = self.keyword_chains
+        prev_level = None
+        prev_key = None
+        for char in chars:
+            if char not in level:
+                return
+            if self.delimit in level:
+                prev_level = level
+                prev_key = char
+            level = level[char]
+        if len(level) > 1:
+            level.pop(self.delimit)
+        else:
+            prev_level.pop(prev_key)
+
     def add(self, keyword):
         """
         向过滤器中添加词表
         """
-        chars = keyword.strip().lower()
+        chars = _transform_word(keyword)
         if not chars:
             return
         level = self.keyword_chains
@@ -75,7 +109,7 @@ class DFAFilter():
         从文本中找出词表中的词
         """
         origin_message = message
-        message = message.lower()
+        message = _transform_word(message)
         sensitive_words = []
         indexes = []
         start = 0
@@ -122,7 +156,7 @@ def read_dict_sqlite():
     """
     mapping = {}
     for item in SESSION.query(Vocab):
-        mapping[item.src_word.lower()] = item.tgt_word
+        mapping[_transform_word(item.src_word)] = item.tgt_word
     return mapping
 
 
@@ -139,8 +173,8 @@ def read_dict_excel(term_file):
     reverse_mapping = {}
     for _, (src, tgt) in dataframe.iterrows():
         if isinstance(src, str) and isinstance(tgt, str):
-            mapping[src.lower()] = tgt
-            reverse_mapping[tgt.lower()] = src
+            mapping[_transform_word(src)] = tgt
+            reverse_mapping[_transform_word(tgt)] = src
     vocab = {
         "{}-{}".format(*langs): mapping,
         "{}-{}".format(*reversed(langs)): reverse_mapping
@@ -149,7 +183,10 @@ def read_dict_excel(term_file):
 
 
 if DICT_FILE:
-    MAPPING = read_dict_excel(DICT_FILE)
+    try:
+        MAPPING = read_dict_excel(DICT_FILE)
+    except FileNotFoundError:
+        MAPPING = {}
 else:
     MAPPING = {}
 if not MAPPING:
@@ -180,7 +217,7 @@ def mask_term(sent):
 
 
 RE_DEMULTY = re.compile(
-    "([{}]+)([0-9]+)".format("".join(set(PROTECTION_SYMBOL))))
+    "([{} ]+)([0-9]+)".format("".join(set(PROTECTION_SYMBOL))))
 
 
 def de_mask_term(sent, terms):
@@ -193,12 +230,15 @@ def de_mask_term(sent, terms):
         start, end = obj.span()
         string_builder += sent[prev:start]
         prev = end
-        _, num = obj.groups()
+        prefix, num = obj.groups()
+        if not prefix.replace(" ", ""):
+            # 如果提取的前缀中只有空格，则跳过
+            continue
         num = int(num)
         if num >= len(terms):
             continue
         term = terms[num]
-        string_builder += MAPPING[term.lower()]
+        string_builder += MAPPING[_transform_word(term)]
 
     string_builder += sent[prev:]
 
@@ -209,7 +249,7 @@ def add_words(words):
     """添加词典"""
     for src_word, tgt_word in words:
         SESSION.merge(Vocab(src_word=src_word, tgt_word=tgt_word))
-        MAPPING[src_word.lower()] = tgt_word
+        MAPPING[_transform_word(src_word)] = tgt_word
         TERM_FILTER.add(src_word)
     SESSION.commit()
 
@@ -218,7 +258,11 @@ def delete_words(words):
     """
     从词典中删除
     """
-    raise NotImplementedError("Method delete_words are not implemented yet.")
+    for word in words:
+        MAPPING.pop(_transform_word(word), None)
+        TERM_FILTER.remove(word)
+        SESSION.query(Vocab).filter(Vocab.src_word == word).delete()
+    SESSION.commit()
 
 
 def show_words(return_dict=False):
