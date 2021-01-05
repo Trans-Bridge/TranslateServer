@@ -19,10 +19,10 @@ if src_lang == "zh":
             return len(x.replace(" ", ""))
         if sent_len(text) > max_sent_len:
             sents = SentenceSplitter.split(text)
-            long_sents = list(filter(lambda x: sent_len(x) > max_sent_len, sents))
-            if long_sents:
-                raise AttributeError(
-                    "Please enter text less than {} chars in chinese.".format(max_sent_len))
+            #  long_sents = list(filter(lambda x: sent_len(x) > max_sent_len, sents))
+            #  if long_sents:
+            #      raise AttributeError(
+            #          "Please enter text less than {} chars in chinese.".format(max_sent_len))
         else:
             sents = [text]
         return sents
@@ -36,10 +36,10 @@ elif src_lang == "en":
             return len(nltk.word_tokenize(x))
         if sent_len(text) > max_sent_len:
             sents = nltk.sent_tokenize(text)
-            long_sents = list(filter(lambda x: sent_len(x) > max_sent_len, sents))
-            if long_sents:
-                raise AttributeError(
-                    "Please enter text less than {} chars in chinese.".format(max_sent_len))
+           #   long_sents = list(filter(lambda x: sent_len(x) > max_sent_len, sents))
+            #  if long_sents:
+            #      raise AttributeError(
+           #           "Please enter text less than {} chars in chinese.".format(max_sent_len))
         else:
             sents = [text]
         return sents
