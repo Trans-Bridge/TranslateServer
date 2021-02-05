@@ -2,7 +2,41 @@
 测试项目web api
 """
 import json
+import os
+import time
+
 import requests
+
+CWD = os.path.abspath(os.path.dirname(__file__))
+
+def test_performance(url, src_lang):
+    """
+    测试翻译接口的性能，测试标准以为中英文100字（词）为标准
+    """
+    # 从assets文件夹中取出对应的测试语料
+    test_file = os.path.join(CWD, "assets", src_lang)
+    if not os.path.exists(test_file):
+        raise NotImplementedError(
+            "Test cases for source language "
+            "{} have not been NotImplemented yet. ".format(src_lang))
+    with open(test_file, "r") as f_open:
+        lines = f_open.readlines()
+
+    start_time = time.time()
+    total_lines = len(lines)
+
+    for sent in lines:
+        data = {
+            "method": "translate",
+            "data": {
+                "input": sent
+            }
+        }
+        result = requests.post(url, json=data)
+    end_time = time.time()
+
+    avg_time = (end_time - start_time) / total_lines
+    print("The average response time per request of {} is {}s.".format(url, avg_time))
 
 
 def test_method_translate(url, src_lang):
@@ -26,8 +60,6 @@ def test_method_translate(url, src_lang):
     result = requests.post(url, json=data)
     response_data = json.loads(result.text)
     assert response_data["status"] == "200"
-    # print("url: {}\nsrc: {}\ntranslation: {}".format(
-    #  url, sent, response_data["data"]["translation"]))
 
 
 def test_method_term_protection(url):
@@ -86,6 +118,7 @@ def main():
 
     test_method_translate(url, src_lang)
     test_method_term_protection(url)
+    test_performance(url, src_lang)
 
 
 if __name__ == "__main__":

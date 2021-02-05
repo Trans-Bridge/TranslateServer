@@ -1,10 +1,10 @@
 """
 对部署的模型进行测试
 """
-import os
 import argparse
-
-from test.test_service import test_method_translate, test_method_term_protection
+import os
+from test.test_service import (test_method_term_protection,
+                               test_method_translate, test_performance)
 
 
 def parse_args():
@@ -34,6 +34,7 @@ def test_deployment(folder, ipaddr, port):
         url = url_base + "/" + name.replace("_", "/")
         test_method_translate(url, src_lang)
         test_method_term_protection(url)
+        test_performance(url, src_lang)
 
 
 def main():
