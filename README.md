@@ -18,9 +18,9 @@ cp config.yaml.template mount/config.yaml
 ```
 根据需求`config.yaml.template`文件配置，配置相关模型的路径
 
-配置文件参数说明 （TODO）
+配置文件参数说明请参考[项目配置](docs/项目配置.md)
 
-如何获取模型（TODO）
+如何获取模型请参考[模型获取](docs/模型获取.md)
 
 ### 启动服务
 ```
