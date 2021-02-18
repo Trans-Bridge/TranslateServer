@@ -1,0 +1,80 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  IMAGE_NAME: translate_server_py
+  IMAGE_TAG_PREFIX: latest
+  CONTAINER_SOURCE_DIR: /root/translate_server_py
+
+build_cpu:
+  stage: build
+  script:
+    - python3 docker/generate_docker_file.py . --version $IMAGE_TAG_PREFIX-device_cpu-fairseq_$FAIRSEQ_VERSION --device cpu --fairseq_version $FAIRSEQ_VERSION --build
+  only:
+    - master
+  tags:
+    - test
+    - translateserver
+
+build_gpu:
+  stage: build
+  script:
+    - python3 docker/generate_docker_file.py . --version $IMAGE_TAG_PREFIX-device_cuda-fairseq_$FAIRSEQ_VERSION --device cuda --fairseq_version $FAIRSEQ_VERSION --build
+  only:
+    - master
+  tags:
+    - test
+    - translateserver
+
+test_opennmt_cpu:
+  stage: test
+  script:
+    - bash docker/test_container.sh $IMAGE_NAME:$IMAGE_TAG_PREFIX-device_cpu-fairseq_$FAIRSEQ_VERSION $OPENNMT_TEST_FOLDER
+  only:
+    - master
+  tags:
+    - test
+    - translateserver
+
+test_opennmt_gpu:
+  stage: test
+  script:
+    - bash docker/test_container.sh $IMAGE_NAME:$IMAGE_TAG_PREFIX-device_cuda-fairseq_$FAIRSEQ_VERSION $OPENNMT_TEST_FOLDER
+  only:
+    - master
+  tags:
+    - test
+    - translateserver
+
+test_fairseq_cpu:
+  stage: test
+  script:
+    - bash docker/test_container.sh $IMAGE_NAME:$IMAGE_TAG_PREFIX-device_cpu-fairseq_$FAIRSEQ_VERSION $FAIRSEQ_TEST_FOLDER
+  only:
+    - master
+  tags:
+    - test
+    - translateserver
+
+test_fairseq_gpu:
+  stage: test
+  script:
+    - bash docker/test_container.sh $IMAGE_NAME:$IMAGE_TAG_PREFIX-device_cuda-fairseq_$FAIRSEQ_VERSION $FAIRSEQ_TEST_FOLDER
+  only:
+    - master
+  tags:
+    - test
+    - translateserver
+
+production:
+  stage: deploy
+  script:
+    - bash start.sh $MODEL_FOLDER $IMAGE_VERSION $SERVE_PORT
+  only:
+    - release
+  tags:
+    - production
+    - translateserver
+  when: manual
