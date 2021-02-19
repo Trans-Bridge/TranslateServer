@@ -33,12 +33,13 @@ FROM python:${PYTHON_VERSION}
 
 
 GENERAL = r"""
-# update pip 
+# update pip
 RUN pip install -i https://pypi.douban.com/simple --upgrade pip
 
 WORKDIR /root
 ENV CMAKE_VERSION=3.18.4
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz && \
+# This is a mirror of https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz
+RUN wget -q https://gitee.com/brightxiaohan/CMake/attach_files/615214/download/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz && \
     tar xf *.tar.gz && \
     rm *.tar.gz
 ENV PATH=$PATH:/root/cmake-$CMAKE_VERSION-Linux-x86_64/bin
