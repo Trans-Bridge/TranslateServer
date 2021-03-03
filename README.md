@@ -10,6 +10,33 @@ centos或者ubuntu
 ```
 pip install -r requirements.txt
 ```
+#### 安装pyltp（可选）
+如果原文为中文(zh)的话，需要pyltp中的分句模块支持，可以使用以下命令安装pyltp
+```
+git clone https://github.com/HIT-SCIR/pyltp.git && \
+    cd pyltp && \
+    git checkout v0.4.0 && \
+    git submodule init && \
+    git submodule update && \
+    python setup.py install && \
+    cd .. && \
+    rm -rf pyltp
+```
+#### 安装fairseq（可选）
+如果需要部署的模型是基于fairseq进行训练的话，需要安装pytorch和fairseq。如果不是基于fairseq的话可以跳过此步骤
+
+pytorch安装可以参考[官方文档](https://pytorch.org/)，根据你的软件版本和是否有gpu选择合适的安装命令进行安装。版本选择1.6以上的版本。
+
+安装fairseq命令如下
+```
+# 由于不同版本的fairseq训练的模型可能造成模型的不兼容，请确保训练和预测所用的fairseq版本相同
+git clone https://github.com/pytorch/fairseq.git && \
+    cd fairseq && \
+    git checkout v0.10.1 && \  
+    pip install -i https://pypi.douban.com/simple . && \
+    cd .. && \
+    rm -rf fairseq
+```
 ### 准备模型
 
 ```
