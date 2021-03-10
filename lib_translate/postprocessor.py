@@ -64,6 +64,34 @@ def get_mosesdetokenize_postprocessor(lang=None):
     return processor
 
 
+def get_chinesepunc_postprocessor():
+    """
+    获取中文标点标准化后处理器。保证中文中的常见符号如，。；？（）为中文全角符号
+
+    >>> processor = get_chinesepunc_postprocessor()
+    >>> processor("你好啊!(我有1.5块钱给你好吗?) 你;我:他")
+    '你好啊！（我有1.5块钱给你好吗？） 你；我：他'
+    """
+    punc_mapping = {
+        ",": "，",
+        ".": "。",
+        "?": "？",
+        ";": "；",
+        "(": "（",
+        ")": "）",
+        ":": "："
+    }
+    regx = re.compile(
+        "(?<![0-9A-Za-z])[{}](?<=[0-9A-Za-z])".format("".join(punc_mapping)))
+
+    def sub_func(content):
+        return punc_mapping[content]
+
+    def processor(line):
+        return regx.sub(sub_func, line)
+    return processor
+
+
 this = sys.modules[__name__]
 all_processors = []
 for item in postprocess_pipeline:
