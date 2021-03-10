@@ -17,6 +17,7 @@ build_cpu:
   tags:
     - test
     - translateserver
+  when: manual
 
 build_gpu:
   stage: build
@@ -27,6 +28,7 @@ build_gpu:
   tags:
     - test
     - translateserver
+  when: manual
 
 test_opennmt_cpu:
   stage: test
@@ -37,6 +39,7 @@ test_opennmt_cpu:
   tags:
     - test
     - translateserver
+  when: manual
 
 test_opennmt_gpu:
   stage: test
@@ -47,6 +50,7 @@ test_opennmt_gpu:
   tags:
     - test
     - translateserver
+  when: manual
 
 test_fairseq_cpu:
   stage: test
@@ -57,6 +61,7 @@ test_fairseq_cpu:
   tags:
     - test
     - translateserver
+  when: manual
 
 test_fairseq_gpu:
   stage: test
@@ -67,6 +72,7 @@ test_fairseq_gpu:
   tags:
     - test
     - translateserver
+  when: manual
 
 production:
   stage: deploy
