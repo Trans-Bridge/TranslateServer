@@ -28,6 +28,7 @@ def get_remove_whitespace_postprocessor():
         while re_han.search(line):
             line = re_han.sub("\\g<1>\\g<3>", line)
         return line
+
     return postprocessor
 
 
@@ -44,6 +45,7 @@ def get_detruecase_postprocessor():
 
     def processor(line):
         return mtr.detruecase(line, return_str=True)
+
     return processor
 
 
@@ -61,6 +63,7 @@ def get_mosesdetokenize_postprocessor(lang=None):
 
     def processor(line):
         return mdt.detokenize(line.split(), return_str=True)
+
     return processor
 
 
@@ -69,8 +72,8 @@ def get_chinesepunc_postprocessor():
     获取中文标点标准化后处理器。保证中文中的常见符号如，。；？（）为中文全角符号
 
     >>> processor = get_chinesepunc_postprocessor()
-    >>> processor("你好啊!(我有1.5块钱给你好吗?) 你;我:他")
-    '你好啊！（我有1.5块钱给你好吗？） 你；我：他'
+    >>> processor("你好啊!(我有1.5块钱给你好吗?)你;我:他")
+    '你好啊！（我有1.5块钱给你好吗？）你；我：他'
     """
     punc_mapping = {
         ",": "，",
@@ -79,16 +82,18 @@ def get_chinesepunc_postprocessor():
         ";": "；",
         "(": "（",
         ")": "）",
-        ":": "："
+        ":": "：",
+        "!": "！"
     }
-    regx = re.compile(
-        "(?<![0-9A-Za-z])[{}](?<=[0-9A-Za-z])".format("".join(punc_mapping)))
+    regx = re.compile('(?<![0-9A-Za-z])[{}](?![0-9A-Za-z])'.format(
+        "".join(punc_mapping)))
 
-    def sub_func(content):
-        return punc_mapping[content]
+    def sub_func(match_obj):
+        return punc_mapping[match_obj.group(0)]
 
     def processor(line):
         return regx.sub(sub_func, line)
+
     return processor
 
 
