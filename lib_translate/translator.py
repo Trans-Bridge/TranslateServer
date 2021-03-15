@@ -11,6 +11,7 @@ from config import global_config
 translate_method = global_config["translate_method"]
 translate_model = global_config["translate_model"]
 translate_model_device = global_config["translate_model_device"]
+translate_beam_size = global_config["translate_beam_size"]
 
 # 使用opennmt训练的翻译模型
 if translate_method == "opennmt":
@@ -24,7 +25,7 @@ if translate_method == "opennmt":
                                         device_index=int(device_index))
 
     def translate(tokens):
-        model_output = translator.translate_batch(tokens)
+        model_output = translator.translate_batch(tokens, beam_size=translate_beam_size)
         output_tokens = [item[0]["tokens"] for item in model_output]
         return output_tokens
 
@@ -34,7 +35,7 @@ elif translate_method == "fairseq":
         translate_model,
         checkpoint_file='checkpoint_best.pt',
         data_name_or_path=translate_model,  # 指定存储词表的文件
-        beam=3
+        beam=translate_beam_size
     )
     translator.to(translate_model_device)
     translator.eval()

@@ -3,8 +3,12 @@
 """
 import yaml
 
-with open("mount/config.yaml", "r") as f:
-    global_config = yaml.load(f.read())
-
-# 项目全局变量
+# 有默认值的参数
+global_config = dict()
 global_config["serve_port"] = 80
+global_config["translate_beam_size"] = 3
+
+with open("mount/config.yaml", "r") as f:
+    config = yaml.load(f.read())
+
+global_config.update(config)

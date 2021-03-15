@@ -22,6 +22,7 @@ translate_model: "mount/ct2_convert"
 translate_src_lang: "en"
 translate_tgt_lang: "zh"
 translate_model_device: "cpu"
+translate_beam_size: 3
 
 # docker 相关配置
 docker_image_tag_suffix: device_cuda-fairseq_v0.10.1
